@@ -1,12 +1,11 @@
 function main() {
-    console.log('resolve!');
     var resolverBar = document.getElementById('#resolver');
     if (!resolverBar) {
         resolverBar = document.createElement('div');
         container = document.getElementsByClassName('game-container')[0];
         container.parentElement.insertBefore(resolverBar, container);
     }
-    resolverBar.innerHTML = '<div id="hint"><a href="javascript:run();">自动跑</a> | <a href="javascript:autoMove();">下一步</a></div>';
+    resolverBar.innerHTML = '<div id="hint"><a href="javascript:run();">自动跑Run</a> | <a href="javascript:autoMove();">下一步Next</a></div>';
     window.state = getCurrentState();
     state.print();
 
