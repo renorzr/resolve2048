@@ -6,7 +6,7 @@ To play the Game 2048 by programming...
 Usage
 -----
 
-1. Drag [this link](https://github.com/renorzr/resolve2048/raw/master/resolve2048.js) to Chrome bookmark bar.
+1. Install bookmarklet [here](http://renorzr.github.io/resolve2048/)
 2. Open the Game page.
 3. Click on the bookmark that you just added.
 4. Click Run and have fun.
