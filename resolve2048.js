@@ -5,14 +5,18 @@ function main() {
         container = document.getElementsByClassName('game-container')[0];
         container.parentElement.insertBefore(resolverBar, container);
     }
-    resolverBar.innerHTML = '<div id="hint"><a href="javascript:run();">自动跑Run</a> | <a href="javascript:autoMove();">下一步Next</a></div>';
+    resolverBar.innerHTML = '<div id="hint"><a href="javascript:run();">Run</a> | <a href="javascript:autoMove();">Next</a> | <a href="javascript:stop();">Stop</a></div>';
     window.state = getCurrentState();
     state.print();
 
-    if (window.LocalScoreManager) {
-        window.game = new GameManager(5, KeyboardInputManager, HTMLActuator, LocalScoreManager);
-    } else {
-        window.game = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
+    console.log('game=',window.game);
+    if (!window.game) {
+        console.log('reload game');
+        if (window.LocalScoreManager) {
+            window.game = new GameManager(5, KeyboardInputManager, HTMLActuator, LocalScoreManager);
+        } else {
+            window.game = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
+        }
     }
 }
 
@@ -192,12 +196,19 @@ function State(size) {
         if (depth <= 0) return 0;
         var chStates = self.possibleChallenges();
         var chScore = 0;
+        var death = 0;
         for (var i = 0; i < chStates.length; i++) {
+            if (chStates[i].dead()) death++;
             chScore += chStates[i].score(depth - 1);
         }
+        var deathRate = death / chStates.length;
         var pairScore = (pairs(true) + pairs(false)) * 0.7;
         var availCells = state.grid.availableCells().length;
-        return availCells + chScore / availCells / 100 + pairScore;
+        return availCells + chScore / availCells / 100 + pairScore; // + 10 - deathRate * 10;
+    }
+
+    self.dead = function() {
+        return (self.grid.availableCells() == 0 && self.possibleMoves().length == 0);
     }
 
     function pairs(vertical) {
@@ -208,8 +219,8 @@ function State(size) {
                 var cells = self.grid.cells;
                 var tile = vertical ? cells[i][j] : cells[j][i];
                 var curVal = tile ? tile.value : null;
-                if (lastVal == curVal) {
-                    pairs += 1;
+                if (lastVal && lastVal == curVal) {
+                    pairs += (Math.log(curVal) / Math.log(2)) * 0.1;
                     lastVal = null;
                 } else {
                     lastVal = curVal;
@@ -224,7 +235,7 @@ function State(size) {
         var states = self.possibleMoves();
         for (var i = 0; i < states.length; i++) {
             var state = states[i]
-            scores[state.byDirection] = state.score(1);
+            scores[state.byDirection] = state.score(2);
         }
         return scores;
     }
@@ -269,7 +280,11 @@ function autoMove() {
 }
 
 function run() {
-    setInterval(autoMove, 300);
+    window.running = setInterval(autoMove, 200);
+}
+
+function stop() {
+    clearInterval(window.running);
 }
 
 main();
